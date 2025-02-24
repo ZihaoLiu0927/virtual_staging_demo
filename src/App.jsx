@@ -2,7 +2,32 @@ import { Experience } from "./components/Experience";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls } from "@react-three/drei";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useControls } from "leva";
+import { useEffect } from "react";
+import { useThree } from "@react-three/fiber";
+
+const CameraController = () => {
+  const { camera } = useThree();
+  
+  const { position, rotation } = useControls({
+    position: {
+      value: { x: -3, y: 1, z: -4 },
+      step: 0.1,
+    },
+    rotation: {
+      value: { x: -0.2, y: 0, z: 0 },
+      step: 0.1,
+    }
+  });
+
+  useEffect(() => {
+    camera.position.set(position.x, position.y, position.z);
+    camera.rotation.set(rotation.x, rotation.y, rotation.z);
+  }, [camera, position, rotation]);
+
+  return null;
+};
 
 export const Controls = {
   forward: "forward",
@@ -25,11 +50,14 @@ export const App = () => {
   return (
     <>
       <KeyboardControls map={map}>
-        <Canvas camera={{ position: [0, 3, 8], fov: 75 }}>
+        <Canvas >
+          <CameraController />
           <OrbitControls 
             enablePan={false} 
             enableZoom={true}
             enableDamping={true}
+            maxPolarAngle={Math.PI / 2}
+            minPolarAngle={Math.PI / 4}
             rotateSpeed={0.5}
           />
           <Experience />

@@ -38,7 +38,7 @@ export const Experience = () => {
   return (
     <>
       <ambientLight intensity={0.3} />
-      <Room scale={0.005} />
+      <Room scale={0.01} />
     </>
   );
 };
