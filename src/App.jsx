@@ -50,7 +50,7 @@ export const App = () => {
   return (
     <>
       <KeyboardControls map={map}>
-        <Canvas >
+        <Canvas>
           <CameraController />
           <OrbitControls 
             enablePan={false} 

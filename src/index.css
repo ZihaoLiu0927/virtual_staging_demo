@@ -6,3 +6,47 @@
 body {
   margin: 0;
 }
+
+.toolbar {
+  position: fixed;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  pointer-events: auto !important;
+  user-select: none;
+  touch-action: none;
+}
+
+.toolbar-item {
+  cursor: grab;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+  touch-action: none;
+}
+
+.toolbar-item:active {
+  cursor: grabbing;
+}
+
+.preview {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 5px;
+}
+
+.preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.html-container {
+  pointer-events: none !important;
+}
