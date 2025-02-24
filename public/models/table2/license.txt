@@ -1,0 +1,11 @@
+Model Information:
+* title:	Modern Computer Table
+* source:	https://sketchfab.com/3d-models/modern-computer-table-4dfa5f3d64f340f598ce3b0069e6dc21
+* author:	Divasurya22 (https://sketchfab.com/Divasurya22)
+
+Model License:
+* license type:	CC-BY-SA-4.0 (http://creativecommons.org/licenses/by-sa/4.0/)
+* requirements:	Author must be credited. Modified versions must have the same license. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Modern Computer Table" (https://sketchfab.com/3d-models/modern-computer-table-4dfa5f3d64f340f598ce3b0069e6dc21) by Divasurya22 (https://sketchfab.com/Divasurya22) licensed under CC-BY-SA-4.0 (http://creativecommons.org/licenses/by-sa/4.0/)
