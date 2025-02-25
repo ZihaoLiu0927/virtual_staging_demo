@@ -36,36 +36,43 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
     const keys = getKeys();
     const moveSpeed = 0.15;
     
-    // 获取相机的前进方向（不包括y轴）
+    // 获取相机的前进方向并水平化
     const cameraDirection = new THREE.Vector3();
     camera.getWorldDirection(cameraDirection);
     cameraDirection.y = 0;
     cameraDirection.normalize();
     
-    // 获取相机的右方向
+    // 获取水平的右方向向量
     const rightVector = new THREE.Vector3();
     rightVector.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0));
+    rightVector.normalize();
     
     // 计算移动方向
     const moveVector = new THREE.Vector3(0, 0, 0);
     
-    // 前后移动
+    // 前后左右移动
     if (keys.forward) {
       moveVector.add(cameraDirection);
     }
     if (keys.back) {
       moveVector.sub(cameraDirection);
     }
-    
-    // 左右移动（平行移动）
     if (keys.left) {
       moveVector.sub(rightVector);
     }
     if (keys.right) {
       moveVector.add(rightVector);
     }
+
+    // 上下移动
+    if (keys.up) {
+      moveVector.add(new THREE.Vector3(0, 1, 0));
+    }
+    if (keys.down) {
+      moveVector.sub(new THREE.Vector3(0, 1, 0));
+    }
     
-    // 如果有移动输入，应用移动
+    // 应用移动
     if (moveVector.lengthSq() > 0) {
       moveVector.normalize().multiplyScalar(moveSpeed);
       camera.position.add(moveVector);
@@ -92,7 +99,7 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
   };
 
   const FURNITURE_SIZES = {
-    table: { x: 1, y: 1.5, z: 0.5 },
+    table: { x: 1.3, y: 1.5, z: 0.5 },
     chair: { x: 0.3, y: 0.8, z: 0.3 },
   };
 
@@ -143,8 +150,6 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
 
         if (child.userData.isWall) {
           // 检查是否与墙有交集
-          console.log("1" , meshBBox.intersectsBox(furnitureBBox));
-          console.log("2" , !meshBBox.containsBox(furnitureBBox));
           if (meshBBox.intersectsBox(furnitureBBox) && !meshBBox.containsBox(furnitureBBox)) {
             hasCollision = true;
           }

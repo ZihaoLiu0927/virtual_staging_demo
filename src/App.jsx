@@ -35,6 +35,8 @@ export const Controls = {
   back: "back",
   left: "left",
   right: "right",
+  up: "up",
+  down: "down",
 };
 
 export const App = () => {
@@ -47,6 +49,8 @@ export const App = () => {
       { name: Controls.back, keys: ["ArrowDown", "KeyS"] },
       { name: Controls.left, keys: ["ArrowLeft", "KeyA"] },
       { name: Controls.right, keys: ["ArrowRight", "KeyD"] },
+      { name: Controls.up, keys: ["KeyQ"] },
+      { name: Controls.down, keys: ["KeyE"] },
     ],
     []
   );
