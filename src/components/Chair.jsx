@@ -7,23 +7,54 @@ Source: https://sketchfab.com/3d-models/office-chair-af2f07d06f6349158c1d24d87f5
 Title: Office chair
 */
 
-import React, { forwardRef } from 'react'
-import { useGLTF } from '@react-three/drei'
+import React, { useRef, forwardRef } from 'react'
+import { useGLTF, useKeyboardControls } from '@react-three/drei'
 import * as THREE from 'three';
+import { RigidBody } from '@react-three/rapier';
+import { useFrame } from "@react-three/fiber";
+import { Controls } from "../App";
+
+const MOVEMENT_SPEED = 1;
 
 export const Chair = forwardRef(({isSelected, ...props}, ref) => {
   const { nodes, materials } = useGLTF('/models/chair/scene.gltf')
+  const [, get] = useKeyboardControls();
   const selectedMateriral = new THREE.MeshStandardMaterial({
     wireframe: true,
     color: "yellow",
   });
+  const rb = useRef();
+  const vel = new THREE.Vector3();
+  useFrame(() => {
+    vel.x = 0;
+    vel.y = 0;
+    vel.z = 0;
+    if (get()[Controls.forward]) {
+      vel.z -= MOVEMENT_SPEED;
+    }
+    if (get()[Controls.back]) {
+      vel.z += MOVEMENT_SPEED;
+    }
+    if (get()[Controls.left]) {
+      vel.x -= MOVEMENT_SPEED;
+    }
+    if (get()[Controls.right]) {
+      vel.x += MOVEMENT_SPEED;
+    }
+    if (get()[Controls.jump]) {
+    }
+    rb.current.setLinvel(vel, true);
+    // rb.current.applyImpulse(impulse, true);
+  });
 
   return (
-    <group ref={ref} {...props} dispose={null}>
-      <group rotation={[-Math.PI / 2, 0, 0]} scale={0.531}>
-        <mesh geometry={nodes.defaultMaterial.geometry} material={isSelected ? selectedMateriral : materials.Chair} rotation={[Math.PI / 2, 0, 0]} />
+    <RigidBody ref={rb} colliders="cuboid">
+      <group ref={ref} {...props} dispose={null}>
+        <group rotation={[-Math.PI / 2, 0, 0]} scale={0.531}>
+          <mesh geometry={nodes.defaultMaterial.geometry} material={isSelected ? selectedMateriral : materials.Chair} rotation={[Math.PI / 2, 0, 0]} />
+        </group>
       </group>
-    </group>
+    </RigidBody>
   )
 })
 

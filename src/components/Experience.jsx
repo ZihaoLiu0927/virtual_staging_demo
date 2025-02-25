@@ -20,7 +20,6 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
   const forward = new THREE.Vector3();
   const right = new THREE.Vector3();
   
-  const planeRef = useRef();
   const roomRef = useRef();
   const previewRef = useRef();
   
@@ -34,12 +33,14 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
     table: VIRTUAL_GROUND_HEIGHT+0.1,
     chair: VIRTUAL_GROUND_HEIGHT+0.5
   };
+  const moveSpeed = 0.15;
 
   useFrame(() => {
+    if (selectedItem) {
+      return null;
+    }
+      
     const keys = getKeys();
-    
-    const moveSpeed = 0.15;
-    
     moveDirection.set(0, 0, 0);
     
     camera.getWorldDirection(forward);
@@ -152,21 +153,17 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
         {/* Preview with visual feedback */}
         {isDragging && previewPosition && (
           draggedItem === 'table' ? (
-            <RigidBody colliders="cuboid">
-              <Table 
-                ref={previewRef}
-                position={previewPosition}
-                scale={0.4}
-              />
-            </RigidBody>
+            <Table 
+              ref={previewRef}
+              position={previewPosition}
+              scale={0.4}
+            />
           ) : (
-            <RigidBody colliders="cuboid">
-              <Chair 
-                ref={previewRef}
-                position={previewPosition}
-                scale={1}
-              />
-            </RigidBody>
+            <Chair 
+              ref={previewRef}
+              position={previewPosition}
+              scale={1}
+            />
           )
         )}
 
