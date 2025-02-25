@@ -11,6 +11,7 @@ import { RigidBody, useRapier } from "@react-three/rapier";
 export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedItem }) => {
   const [furniture, setFurniture] = useState([]);
   const [previewPosition, setPreviewPosition] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
   const { rapier, world } = useRapier();  // 获取物理世界实例
   const cameraRef = useRef();
   const [, getKeys] = useKeyboardControls();
@@ -60,14 +61,18 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
   // 添加键盘事件监听
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape' && isDragging) {
-        cancelPlacement();
+      if (event.key === 'Escape') {
+        if (isDragging) {
+          cancelPlacement();
+        } else if (selectedItem) {
+          setSelectedItem(null);
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isDragging]);
+  }, [isDragging, selectedItem]);
 
   // 取消放置的方法
   const cancelPlacement = () => {
@@ -101,50 +106,40 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
 
   const handlePointerDown = (event) => {
     if (event.button !== 0) return;
-    const canPlace = checkPlacement(position, draggedItem, furniture);
-    if (isDragging && previewPosition && canPlace) {  // 只在可以放置时添加家具
-      const uniqueId = `${draggedItem}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      setFurniture(prev => [...prev, {
-        type: draggedItem,
-        position: previewPosition,
-        id: uniqueId
-      }]);
-      setIsDragging(false);
-      setDraggedItem(null);
-      setPreviewPosition(null);
-    }
-  };
 
-  // 修改右键处理
-  const handleContextMenu = (event) => {
-    // R3F 事件没有 preventDefault 方法
-    if (isDragging) {
-      cancelPlacement();
-    }
-  };
-
-  // 添加 DOM 级别的右键阻止
-  useEffect(() => {
-    const preventDefault = (e) => e.preventDefault();
-    // 阻止整个 canvas 的右键菜单
-    document.querySelector('canvas').addEventListener('contextmenu', preventDefault);
-    
-    return () => {
-      const canvas = document.querySelector('canvas');
-      if (canvas) {
-        canvas.removeEventListener('contextmenu', preventDefault);
+    if (isDragging && previewPosition) {
+      const canPlace = checkPlacement(previewPosition, draggedItem, furniture);
+      if (canPlace) {
+        const uniqueId = `${draggedItem}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        setFurniture(prev => [...prev, {
+          type: draggedItem,
+          position: previewPosition,
+          id: uniqueId
+        }]);
+        setIsDragging(false);
+        setDraggedItem(null);
+        setPreviewPosition(null);
       }
-    };
-  }, []);
+    }
+  };
+
+  // 添加选中物品的处理函数
+  const handleItemSelect = (event, itemId) => {
+    event.stopPropagation(); // 防止事件冒泡
+    setSelectedItem(itemId);
+  };
 
   return (
     <>
       <group 
         onPointerMove={handlePointerMove}
         onPointerDown={handlePointerDown}
-        onPointerUp={(e) => {
-          if (e.button === 2 && isDragging) {
+        onContextMenu={(e) => {
+          e.preventDefault();
+          if (isDragging) {
             cancelPlacement();
+          } else if (selectedItem) {
+            setSelectedItem(null);
           }
         }}
       >
@@ -153,18 +148,6 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
         <RigidBody type="fixed" colliders="trimesh">
           <Room ref={roomRef} scale={0.01} />
         </RigidBody>
-
-        {/* <RigidBody type="fixed" colliders = 'trimesh'>
-          <mesh 
-            ref={planeRef}
-            rotation={[-Math.PI / 2, 0, 0]} 
-            position={[0, VIRTUAL_GROUND_HEIGHT, 0]}  // 设置新的高度
-            visible={false}
-          >
-            <planeGeometry args={[200, 200]} />
-            <meshBasicMaterial opacity={0.5} />
-          </mesh>
-        </RigidBody> */}
 
         {/* Preview with visual feedback */}
         {isDragging && previewPosition && (
@@ -189,30 +172,47 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
 
         {/* Placed furniture */}
         {furniture.map(item => {
+          const isSelected = item.id === selectedItem;
+          
           if (item.type === 'table') {
             return (
-              <RigidBody 
-                key={item.id}
-                colliders="cuboid"
-              >
-                <Table 
-                  position={item.position}
-                  scale={0.4}
-                />
-              </RigidBody>
+              <group key={item.id}>
+                <RigidBody colliders="cuboid">
+                  <Table 
+                    position={item.position}
+                    scale={0.4}
+                    onClick={(e) => handleItemSelect(e, item.id)}
+                  />
+                </RigidBody>
+                {/* 选中效果 */}
+                {isSelected && (
+                  <mesh position={item.position}>
+                    <boxGeometry args={[1.2, 1.2, 1.2]} />
+                    <meshBasicMaterial color="yellow" wireframe transparent opacity={0.5} />
+                  </mesh>
+                )}
+              </group>
             );
           }
+          
           if (item.type === 'chair') {
             return (
-              <RigidBody 
-                key={item.id}
-                colliders="cuboid"
-              >
-                <Chair 
-                  position={item.position}
-                  scale={1}
-                />
-              </RigidBody>
+              <group key={item.id}>
+                <RigidBody colliders="cuboid">
+                  <Chair 
+                    position={item.position}
+                    scale={1}
+                    onClick={(e) => handleItemSelect(e, item.id)}
+                  />
+                </RigidBody>
+                {/* 选中效果 */}
+                {isSelected && (
+                  <mesh position={item.position}>
+                    <boxGeometry args={[0.5, 0.5, 0.5]} />
+                    <meshBasicMaterial color="yellow" wireframe transparent opacity={0.5} />
+                  </mesh>
+                )}
+              </group>
             );
           }
           return null;
