@@ -9,7 +9,7 @@ Title: Room
 
 import React, { forwardRef } from 'react'
 import { useGLTF } from '@react-three/drei'
-import { BoxHelper } from 'three'
+import { BoxHelper, Color } from 'three'
 import { useEffect } from 'react'
 
 export const Room = forwardRef((props, ref) => {
@@ -18,11 +18,26 @@ export const Room = forwardRef((props, ref) => {
   useEffect(() => {
     if (ref.current) {
       ref.current.traverse((child) => {
-        if (child.isMesh) {
-          const boxHelper = new BoxHelper(child, child.userData.ignoreCollision ? 0x00ff00 : 0xff0000)
-          ref.current.add(boxHelper)
+        if (child.isBoxHelper) {
+          ref.current.remove(child);
         }
-      })
+      });
+
+      ref.current.traverse((child) => {
+        if (child.isMesh) {
+          let color;
+          if (child.userData.ignoreCollision) {
+            color = new Color(0x00ff00);
+          } else if (child.userData.isWall) {
+            color = new Color(0x0000ff);
+          } else {
+            color = new Color(0xff0000);
+          }
+          const boxHelper = new BoxHelper(child, color);
+          boxHelper.visible = true;
+          ref.current.add(boxHelper);
+        }
+      });
     }
   }, [])
 

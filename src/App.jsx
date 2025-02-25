@@ -66,10 +66,10 @@ export const App = () => {
           <CameraController />
           <OrbitControls 
             enablePan={false} 
-            enableZoom={true}
-            enableDamping={true}
+            enableZoom={false}
+            enableDamping={false}
             maxPolarAngle={Math.PI / 2}
-            minPolarAngle={Math.PI / 4}
+            minPolarAngle={Math.PI / 10}
             rotateSpeed={0.5}
           />
           <Experience 
