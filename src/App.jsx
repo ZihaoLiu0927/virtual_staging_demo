@@ -20,7 +20,7 @@ const CameraController = () => {
     rotation: {
       value: { x: -0.2, y: 0, z: 0 },
       step: 0.1,
-    }
+    },
   });
 
   useEffect(() => {
@@ -42,6 +42,13 @@ export const App = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [draggedItem, setDraggedItem] = useState(null);
 
+  const { showPhysics } = useControls({
+    showPhysics: {
+      value: false,
+      label: 'Show Physics'
+    }
+  });
+
   const map = useMemo(
     () => [
       { name: Controls.forward, keys: ["ArrowUp", "KeyW"] },
@@ -60,6 +67,7 @@ export const App = () => {
       />
       <KeyboardControls map={map}>
         <Canvas>
+          <ambientLight intensity={0.5} />
           <CameraController />
           <OrbitControls 
             enablePan={false} 
@@ -69,7 +77,7 @@ export const App = () => {
             minPolarAngle={Math.PI / 4}
             rotateSpeed={0.5}
           />
-          <Physics debug>
+          <Physics debug = {showPhysics}>
             <Experience 
               isDragging={isDragging}
               setIsDragging={setIsDragging}

@@ -102,7 +102,6 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
   const handlePointerDown = (event) => {
     if (event.button !== 0) return;
     const canPlace = checkPlacement(position, draggedItem, furniture);
-    console.log(isDragging, previewPosition, canPlace);
     if (isDragging && previewPosition && canPlace) {  // 只在可以放置时添加家具
       const uniqueId = `${draggedItem}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       setFurniture(prev => [...prev, {
