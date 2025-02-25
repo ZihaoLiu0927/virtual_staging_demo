@@ -7,7 +7,7 @@ Source: https://sketchfab.com/3d-models/office-chair-af2f07d06f6349158c1d24d87f5
 Title: Office chair
 */
 
-import React, { useRef, forwardRef } from 'react'
+import React, { useRef } from 'react'
 import { useGLTF, useKeyboardControls } from '@react-three/drei'
 import * as THREE from 'three';
 import { RigidBody } from '@react-three/rapier';
@@ -16,7 +16,7 @@ import { Controls } from "../App";
 
 const MOVEMENT_SPEED = 1;
 
-export const Chair = forwardRef(({isSelected, ...props}, ref) => {
+export const Chair = (({isSelected, ...props}) => {
   const { nodes, materials } = useGLTF('/models/chair/scene.gltf')
   const [, get] = useKeyboardControls();
   const selectedMateriral = new THREE.MeshStandardMaterial({
@@ -44,12 +44,11 @@ export const Chair = forwardRef(({isSelected, ...props}, ref) => {
     if (get()[Controls.jump]) {
     }
     rb.current.setLinvel(vel, true);
-    // rb.current.applyImpulse(impulse, true);
   });
 
   return (
     <RigidBody ref={rb} colliders="cuboid">
-      <group ref={ref} {...props} dispose={null}>
+      <group {...props} dispose={null}>
         <group rotation={[-Math.PI / 2, 0, 0]} scale={0.531}>
           <mesh geometry={nodes.defaultMaterial.geometry} material={isSelected ? selectedMateriral : materials.Chair} rotation={[Math.PI / 2, 0, 0]} />
         </group>

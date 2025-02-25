@@ -21,7 +21,6 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
   const right = new THREE.Vector3();
   
   const roomRef = useRef();
-  const previewRef = useRef();
   
   const { camera, raycaster, pointer } = useThree();
 
@@ -154,13 +153,11 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
         {isDragging && previewPosition && (
           draggedItem === 'table' ? (
             <Table 
-              ref={previewRef}
               position={previewPosition}
               scale={0.4}
             />
           ) : (
             <Chair 
-              ref={previewRef}
               position={previewPosition}
               scale={1}
             />

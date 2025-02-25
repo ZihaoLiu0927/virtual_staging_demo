@@ -7,7 +7,7 @@ Source: https://sketchfab.com/3d-models/computer-table-0d6ac658f1f44b8387f6e6edf
 Title: Computer table
 */
 
-import React, { useRef, forwardRef } from 'react'
+import React, { useRef } from 'react'
 import { useGLTF, useKeyboardControls } from '@react-three/drei'
 import * as THREE from 'three';
 import { RigidBody } from '@react-three/rapier';
@@ -16,7 +16,7 @@ import { Controls } from "../App";
 
 const MOVEMENT_SPEED = 1;
 
-export const Table = forwardRef(({isSelected, ...props}, ref) => {
+export const Table = (({isSelected, ...props}) => {
   const { nodes, materials } = useGLTF('/models/table/scene.gltf');
   const [, get] = useKeyboardControls();
   const selectedMateriral = new THREE.MeshStandardMaterial({
@@ -26,7 +26,7 @@ export const Table = forwardRef(({isSelected, ...props}, ref) => {
   const rb = useRef();
   const vel = new THREE.Vector3();
   useFrame(() => {
-    impulsvel.x = 0;
+    vel.x = 0;
     vel.y = 0;
     vel.z = 0;
     if (get()[Controls.forward]) {
@@ -44,12 +44,11 @@ export const Table = forwardRef(({isSelected, ...props}, ref) => {
     if (get()[Controls.jump]) {
     }
     rb.current.setLinvel(vel, true);
-    // rb.current.applyImpulse(impulse, true);
   });
 
   return (
     <RigidBody ref={rb} colliders="cuboid">
-      <mesh ref={ref} {...props} dispose={null}>
+      <mesh {...props} dispose={null}>
         <mesh geometry={nodes.Object_4.geometry} material={isSelected ? selectedMateriral : materials.Material} position={[0, 2.173, 0]} scale={[1.67, 0.053, 1]} />
         <mesh geometry={nodes.Object_6.geometry} material={isSelected ? selectedMateriral : materials['Material.002']} position={[0, 3.014, 0]} scale={[0.656, 0.479, 0.044]} />
         <mesh geometry={nodes.Object_8.geometry} material={isSelected ? selectedMateriral : materials['Material.004']} position={[0, 2.462, -0.099]} scale={[0.097, 0.273, 0.07]} />
