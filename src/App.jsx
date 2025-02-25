@@ -7,7 +7,6 @@ import { useControls } from "leva";
 import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 import { Toolbar } from "./components/Toolbar";
-import { Physics } from "@react-three/rapier";
 
 const CameraController = () => {
   const { camera } = useThree();
@@ -69,14 +68,12 @@ export const App = () => {
             minPolarAngle={Math.PI / 4}
             rotateSpeed={0.5}
           />
-          <Physics debug>
-            <Experience 
-              isDragging={isDragging}
-              setIsDragging={setIsDragging}
-              draggedItem={draggedItem}
-              setDraggedItem={setDraggedItem}
-            />
-          </Physics>
+          <Experience 
+            isDragging={isDragging}
+            setIsDragging={setIsDragging}
+            draggedItem={draggedItem}
+            setDraggedItem={setDraggedItem}
+          />
         </Canvas>
       </KeyboardControls>
     </>

@@ -9,10 +9,22 @@ Title: Room
 
 import React, { forwardRef } from 'react'
 import { useGLTF } from '@react-three/drei'
+import { BoxHelper } from 'three'
 import { useEffect } from 'react'
 
 export const Room = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF('/models/sample1/scene.gltf')
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.traverse((child) => {
+        if (child.isMesh) {
+          const boxHelper = new BoxHelper(child, child.userData.ignoreCollision ? 0x00ff00 : 0xff0000)
+          ref.current.add(boxHelper)
+        }
+      })
+    }
+  }, [])
 
   return (
     <group ref={ref} {...props} dispose={null}>
@@ -41,9 +53,9 @@ export const Room = forwardRef((props, ref) => {
         <mesh geometry={nodes.Lamp_2_Lamp_head_0.geometry} material={materials.Lamp_head} />
         <mesh geometry={nodes.Lamp_2_Lamp_wire_0.geometry} material={materials.Lamp_wire} />
       </group>
-      <mesh geometry={nodes.Walls_Wall_0.geometry} material={materials.Wall} position={[-1.846, 323.764, -66.151]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
+      <mesh geometry={nodes.Walls_Wall_0.geometry} material={materials.Wall} position={[-1.846, 323.764, -66.151]} rotation={[-Math.PI / 2, 0, 0]} scale={100} userData={{ isWall: true }}/>
       <mesh geometry={nodes.Wall_marble_Material002_0.geometry} material={materials['Material.002']} position={[0, 189.017, 164.858]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
-      <mesh geometry={nodes.Wall_outside_Wall_outside_0.geometry} material={materials.Wall_outside} position={[858.701, 189.017, 578.636]} rotation={[-Math.PI / 2, 0, 0]} scale={[1192.902, 17.853, 198.682]} />
+      <mesh geometry={nodes.Wall_outside_Wall_outside_0.geometry} material={materials.Wall_outside} position={[858.701, 189.017, 578.636]} rotation={[-Math.PI / 2, 0, 0]} scale={[1192.902, 17.853, 198.682]} userData={{ isWall: true }}/>
       <mesh geometry={nodes.Bed_Bed_0.geometry} material={materials.material} position={[0.197, 20.914, -23.821]} rotation={[-Math.PI / 2, 0, 0]} scale={[158.336, 171.85, 23.735]} />
       <mesh geometry={nodes.Matress_Matress_0.geometry} material={materials.Matress} position={[0.197, 56.387, -19.032]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
       <mesh geometry={nodes.Blanket_Blanket_0.geometry} material={materials.Blanket} position={[0.726, 67.622, -65.148]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />

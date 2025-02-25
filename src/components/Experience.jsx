@@ -5,13 +5,11 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useKeyboardControls } from "@react-three/drei";
 import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
-import { RigidBody, useRapier } from "@react-three/rapier";
-
+import { Box3Helper } from 'three';
 
 export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedItem }) => {
   const [furniture, setFurniture] = useState([]);
   const [previewPosition, setPreviewPosition] = useState(null);
-  const { rapier, world } = useRapier();  // 获取物理世界实例
   const cameraRef = useRef();
   const [, getKeys] = useKeyboardControls();
   
@@ -36,24 +34,41 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
 
   useFrame(() => {
     const keys = getKeys();
-    
     const moveSpeed = 0.15;
     
-    moveDirection.set(0, 0, 0);
+    // 获取相机的前进方向（不包括y轴）
+    const cameraDirection = new THREE.Vector3();
+    camera.getWorldDirection(cameraDirection);
+    cameraDirection.y = 0;
+    cameraDirection.normalize();
     
-    camera.getWorldDirection(forward);
-    forward.y = 0;
-    forward.normalize();
-    right.set(forward.z, 0, -forward.x);
+    // 获取相机的右方向
+    const rightVector = new THREE.Vector3();
+    rightVector.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0));
     
-    if (keys.forward) moveDirection.add(forward);
-    if (keys.back) moveDirection.sub(forward);
-    if (keys.left) moveDirection.sub(right);
-    if (keys.right) moveDirection.add(right);
+    // 计算移动方向
+    const moveVector = new THREE.Vector3(0, 0, 0);
     
-    if (moveDirection.lengthSq() > 0) {
-      moveDirection.normalize().multiplyScalar(moveSpeed);
-      camera.position.add(moveDirection);
+    // 前后移动
+    if (keys.forward) {
+      moveVector.add(cameraDirection);
+    }
+    if (keys.back) {
+      moveVector.sub(cameraDirection);
+    }
+    
+    // 左右移动（平行移动）
+    if (keys.left) {
+      moveVector.sub(rightVector);
+    }
+    if (keys.right) {
+      moveVector.add(rightVector);
+    }
+    
+    // 如果有移动输入，应用移动
+    if (moveVector.lengthSq() > 0) {
+      moveVector.normalize().multiplyScalar(moveSpeed);
+      camera.position.add(moveVector);
     }
   });
 
@@ -77,12 +92,8 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
   };
 
   const FURNITURE_SIZES = {
-    table: { x: 1, y: 0.7, z: 0.5 },
-    chair: { x: 0.3, y: 0.5, z: 0.3 },
-  };
-
-  const checkPlacement = (position, draggedItem, furniture) => {
-    return true;
+    table: { x: 1, y: 1.5, z: 0.5 },
+    chair: { x: 0.3, y: 0.8, z: 0.3 },
   };
 
   const handlePointerMove = (event) => {
@@ -99,20 +110,97 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
     }
   };
 
+  // 添加碰撞检测函数
+  const checkCollision = (position, type) => {
+    if (!roomRef.current) return false;
+
+    // 创建一个临时的包围盒来表示要放置的家具
+    const furnitureBBox = new THREE.Box3();
+    const furnitureSize = FURNITURE_SIZES[type];
+    const halfSize = {
+      x: furnitureSize.x / 2,
+      y: furnitureSize.y / 2,
+      z: furnitureSize.z / 2
+    };
+    
+    furnitureBBox.min.set(
+      position[0] - halfSize.x,
+      0,
+      position[2] - halfSize.z
+    );
+    furnitureBBox.max.set(
+      position[0] + halfSize.x,
+      0,
+      position[2] + halfSize.z
+    );
+
+    let hasCollision = false;
+
+    // 遍历房间的所有mesh进行碰撞检测
+    roomRef.current.traverse((child) => {
+      if (child.isMesh && !child.userData.ignoreCollision) {
+        const meshBBox = new THREE.Box3().setFromObject(child);
+
+        if (child.userData.isWall) {
+          // 检查是否与墙有交集
+          console.log("1" , meshBBox.intersectsBox(furnitureBBox));
+          console.log("2" , !meshBBox.containsBox(furnitureBBox));
+          if (meshBBox.intersectsBox(furnitureBBox) && !meshBBox.containsBox(furnitureBBox)) {
+            hasCollision = true;
+          }
+        } else {
+          // 对于非墙且需要检测碰撞的物体
+          if (furnitureBBox.intersectsBox(meshBBox)) {
+            hasCollision = true;
+          }
+        }
+      }
+    });
+
+    // 检查与其他家具的碰撞
+    furniture.forEach(item => {
+      const itemSize = FURNITURE_SIZES[item.type];
+      const itemBBox = new THREE.Box3();
+      const itemHalfSize = {
+        x: itemSize.x / 2,
+        y: itemSize.y / 2,
+        z: itemSize.z / 2
+      };
+
+      itemBBox.min.set(
+        item.position[0] - itemHalfSize.x,
+        item.position[1] - itemHalfSize.y,
+        item.position[2] - itemHalfSize.z
+      );
+      itemBBox.max.set(
+        item.position[0] + itemHalfSize.x,
+        item.position[1] + itemHalfSize.y,
+        item.position[2] + itemHalfSize.z
+      );
+
+      if (furnitureBBox.intersectsBox(itemBBox)) {
+        hasCollision = true;
+      }
+    });
+
+    return !hasCollision;
+  };
+
   const handlePointerDown = (event) => {
     if (event.button !== 0) return;
-    const canPlace = checkPlacement(position, draggedItem, furniture);
-    console.log(isDragging, previewPosition, canPlace);
-    if (isDragging && previewPosition && canPlace) {  // 只在可以放置时添加家具
-      const uniqueId = `${draggedItem}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      setFurniture(prev => [...prev, {
-        type: draggedItem,
-        position: previewPosition,
-        id: uniqueId
-      }]);
-      setIsDragging(false);
-      setDraggedItem(null);
-      setPreviewPosition(null);
+    if (isDragging && previewPosition) {
+      const canPlace = checkCollision(previewPosition, draggedItem);
+      if (canPlace) {
+        const uniqueId = `${draggedItem}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        setFurniture(prev => [...prev, {
+          type: draggedItem,
+          position: previewPosition,
+          id: uniqueId
+        }]);
+        setIsDragging(false);
+        setDraggedItem(null);
+        setPreviewPosition(null);
+      }
     }
   };
 
@@ -138,6 +226,24 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
     };
   }, []);
 
+  // 添加一个函数来创建包围盒辅助对象
+  const createBoundingBoxHelper = (position, type) => {
+    const size = FURNITURE_SIZES[type];
+    const box = new THREE.Box3(
+      new THREE.Vector3(
+        position[0] - size.x / 2,
+        position[1] - size.y / 2,
+        position[2] - size.z / 2
+      ),
+      new THREE.Vector3(
+        position[0] + size.x / 2,
+        position[1] + size.y / 2,
+        position[2] + size.z / 2
+      )
+    );
+    return <primitive object={new Box3Helper(box, 0x00ff00)} />;
+  };
+
   return (
     <>
       <group 
@@ -151,69 +257,50 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
       >
         <ambientLight intensity={0.3} />
         
-        <RigidBody type="fixed" colliders="trimesh">
-          <Room ref={roomRef} scale={0.01} />
-        </RigidBody>
+        <Room ref={roomRef} scale={0.01} />
 
-        {/* <RigidBody type="fixed" colliders = 'trimesh'>
-          <mesh 
-            ref={planeRef}
-            rotation={[-Math.PI / 2, 0, 0]} 
-            position={[0, VIRTUAL_GROUND_HEIGHT, 0]}  // 设置新的高度
-            visible={false}
-          >
-            <planeGeometry args={[200, 200]} />
-            <meshBasicMaterial opacity={0.5} />
-          </mesh>
-        </RigidBody> */}
-
-        {/* Preview with visual feedback */}
+        {/* Preview with bounding box */}
         {isDragging && previewPosition && (
-          draggedItem === 'table' ? (
-            <RigidBody colliders="cuboid">
+          <>
+            {draggedItem === 'table' ? (
               <Table 
                 ref={previewRef}
                 position={previewPosition}
                 scale={0.4}
               />
-            </RigidBody>
-          ) : (
-            <RigidBody colliders="cuboid">
+            ) : (
               <Chair 
                 ref={previewRef}
                 position={previewPosition}
                 scale={1}
               />
-            </RigidBody>
-          )
+            )}
+            {createBoundingBoxHelper(previewPosition, draggedItem)}
+          </>
         )}
 
-        {/* Placed furniture */}
+        {/* Placed furniture with bounding boxes */}
         {furniture.map(item => {
           if (item.type === 'table') {
             return (
-              <RigidBody 
-                key={item.id}
-                colliders="cuboid"
-              >
+              <group key={item.id}>
                 <Table 
                   position={item.position}
                   scale={0.4}
                 />
-              </RigidBody>
+                {createBoundingBoxHelper(item.position, item.type)}
+              </group>
             );
           }
           if (item.type === 'chair') {
             return (
-              <RigidBody 
-                key={item.id}
-                colliders="cuboid"
-              >
+              <group key={item.id}>
                 <Chair 
                   position={item.position}
                   scale={1}
                 />
-              </RigidBody>
+                {createBoundingBoxHelper(item.position, item.type)}
+              </group>
             );
           }
           return null;
