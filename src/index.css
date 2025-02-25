@@ -12,23 +12,33 @@ body {
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
   padding: 10px;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999; 
   pointer-events: auto !important;
   user-select: none;
   touch-action: none;
 }
 
+
 .toolbar-item {
-  cursor: grab;
+  cursor: pointer;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   text-align: center;
-  touch-action: none;
+  transition: all 0.2s;
+  background: white;
+}
+
+.toolbar-item:hover {
+  background: #f5f5f5;
+  transform: translateX(5px);
 }
 
 .toolbar-item:active {
@@ -49,4 +59,9 @@ body {
 
 .html-container {
   pointer-events: none !important;
+}
+
+.toolbar-item.active {
+  background: #e6f7ff;
+  border-color: #91d5ff;
 }

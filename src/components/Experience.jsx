@@ -1,15 +1,17 @@
 import { Room } from "./Room";
 import { Table } from "./Table";
+import { Chair } from "./Chair";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useKeyboardControls, Html } from "@react-three/drei";
-import { useRef, useState } from "react";
+import { useKeyboardControls } from "@react-three/drei";
+import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
-import { Toolbar } from "./Toolbar";
+import { RigidBody, useRapier } from "@react-three/rapier";
 
-export const Experience = () => {
+
+export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedItem }) => {
   const [furniture, setFurniture] = useState([]);
-  const [isDragging, setIsDragging] = useState(false);
-  const [draggedItem, setDraggedItem] = useState(null);
+  const [previewPosition, setPreviewPosition] = useState(null);
+  const { rapier, world } = useRapier();  // 获取物理世界实例
   const cameraRef = useRef();
   const [, getKeys] = useKeyboardControls();
   
@@ -18,25 +20,18 @@ export const Experience = () => {
   const right = new THREE.Vector3();
   
   const planeRef = useRef();
+  const roomRef = useRef();
+  const previewRef = useRef();
   
   const { camera, raycaster, pointer } = useThree();
 
-  // 创建一个碰撞检测的包围盒
-  const checkCollision = (position, size = { x: 2, z: 1 }) => {
-    // 新家具的包围盒
-    const newBox = new THREE.Box3().setFromCenterAndSize(
-      new THREE.Vector3(position[0], 0, position[2]),
-      new THREE.Vector3(size.x, 1, size.z)
-    );
+  // 修改虚拟地面的位置，将其设置得比房间地面稍高
+  const VIRTUAL_GROUND_HEIGHT = 0.1; // 1cm higher than room floor
 
-    // 检查与现有家具的碰撞
-    return furniture.some(item => {
-      const itemBox = new THREE.Box3().setFromCenterAndSize(
-        new THREE.Vector3(item.position[0], 0, item.position[2]),
-        new THREE.Vector3(size.x, 1, size.z)
-      );
-      return newBox.intersectsBox(itemBox);
-    });
+  // 修改家具的放置高度，考虑到虚拟地面的高度
+  const FURNITURE_HEIGHTS = {
+    table: VIRTUAL_GROUND_HEIGHT+0.1,
+    chair: VIRTUAL_GROUND_HEIGHT+0.5
   };
 
   useFrame(() => {
@@ -62,96 +57,168 @@ export const Experience = () => {
     }
   });
 
+  // 添加键盘事件监听
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && isDragging) {
+        cancelPlacement();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isDragging]);
+
+  // 取消放置的方法
+  const cancelPlacement = () => {
+    setIsDragging(false);
+    setDraggedItem(null);
+    setPreviewPosition(null);
+  };
+
+  const FURNITURE_SIZES = {
+    table: { x: 1, y: 0.7, z: 0.5 },
+    chair: { x: 0.3, y: 0.5, z: 0.3 },
+  };
+
+  const checkPlacement = (position, draggedItem, furniture) => {
+    return true;
+  };
+
   const handlePointerMove = (event) => {
-    if (isDragging && draggedItem) {
-      // 更新射线
+    if (isDragging) {
       raycaster.setFromCamera(pointer, camera);
-      const intersects = raycaster.intersectObject(planeRef.current);
+      const intersects = raycaster.intersectObject(roomRef.current);
       
       if (intersects.length > 0) {
         const point = intersects[0].point;
-        const position = [point.x, 0, point.z];
+        const height = FURNITURE_HEIGHTS[draggedItem] || 0;
+        const position = [point.x, height, point.z];
         setPreviewPosition(position);
-        setCanPlace(!checkCollision(position));
       }
     }
   };
 
-  const handlePointerUp = () => {
-    if (isDragging && draggedItem && previewPosition && canPlace) {
+  const handlePointerDown = (event) => {
+    if (event.button !== 0) return;
+    const canPlace = checkPlacement(position, draggedItem, furniture);
+    console.log(isDragging, previewPosition, canPlace);
+    if (isDragging && previewPosition && canPlace) {  // 只在可以放置时添加家具
       const uniqueId = `${draggedItem}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       setFurniture(prev => [...prev, {
         type: draggedItem,
         position: previewPosition,
         id: uniqueId
       }]);
+      setIsDragging(false);
+      setDraggedItem(null);
+      setPreviewPosition(null);
     }
-    setIsDragging(false);
-    setDraggedItem(null);
-    setPreviewPosition(null);
   };
 
-  // 可以添加一个预览效果
-  const [previewPosition, setPreviewPosition] = useState(null);
-  const [canPlace, setCanPlace] = useState(true);
+  // 修改右键处理
+  const handleContextMenu = (event) => {
+    // R3F 事件没有 preventDefault 方法
+    if (isDragging) {
+      cancelPlacement();
+    }
+  };
+
+  // 添加 DOM 级别的右键阻止
+  useEffect(() => {
+    const preventDefault = (e) => e.preventDefault();
+    // 阻止整个 canvas 的右键菜单
+    document.querySelector('canvas').addEventListener('contextmenu', preventDefault);
+    
+    return () => {
+      const canvas = document.querySelector('canvas');
+      if (canvas) {
+        canvas.removeEventListener('contextmenu', preventDefault);
+      }
+    };
+  }, []);
 
   return (
     <>
-      <group onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
+      <group 
+        onPointerMove={handlePointerMove}
+        onPointerDown={handlePointerDown}
+        onPointerUp={(e) => {
+          if (e.button === 2 && isDragging) {
+            cancelPlacement();
+          }
+        }}
+      >
         <ambientLight intensity={0.3} />
-        <Room scale={0.01} />
         
-        {/* Invisible plane for drag and drop */}
-        <mesh 
-          ref={planeRef}
-          rotation={[-Math.PI / 2, 0, 0]} 
-          position={[0, 0, 0]}
-          visible={false}
-        >
-          <planeGeometry args={[100, 100]} />
-          <meshBasicMaterial transparent opacity={0} />
-        </mesh>
+        <RigidBody type="fixed" colliders="trimesh">
+          <Room ref={roomRef} scale={0.01} />
+        </RigidBody>
 
-        {/* Preview */}
-        {previewPosition && (
-          <Table 
-            position={previewPosition}
-            scale={0.3}
-          />
+        {/* <RigidBody type="fixed" colliders = 'trimesh'>
+          <mesh 
+            ref={planeRef}
+            rotation={[-Math.PI / 2, 0, 0]} 
+            position={[0, VIRTUAL_GROUND_HEIGHT, 0]}  // 设置新的高度
+            visible={false}
+          >
+            <planeGeometry args={[200, 200]} />
+            <meshBasicMaterial opacity={0.5} />
+          </mesh>
+        </RigidBody> */}
+
+        {/* Preview with visual feedback */}
+        {isDragging && previewPosition && (
+          draggedItem === 'table' ? (
+            <RigidBody colliders="cuboid">
+              <Table 
+                ref={previewRef}
+                position={previewPosition}
+                scale={0.4}
+              />
+            </RigidBody>
+          ) : (
+            <RigidBody colliders="cuboid">
+              <Chair 
+                ref={previewRef}
+                position={previewPosition}
+                scale={1}
+              />
+            </RigidBody>
+          )
         )}
 
         {/* Placed furniture */}
         {furniture.map(item => {
           if (item.type === 'table') {
             return (
-              <Table 
+              <RigidBody 
                 key={item.id}
-                position={item.position}
-                scale={0.4}
-              />
+                colliders="cuboid"
+              >
+                <Table 
+                  position={item.position}
+                  scale={0.4}
+                />
+              </RigidBody>
+            );
+          }
+          if (item.type === 'chair') {
+            return (
+              <RigidBody 
+                key={item.id}
+                colliders="cuboid"
+              >
+                <Chair 
+                  position={item.position}
+                  scale={1}
+                />
+              </RigidBody>
             );
           }
           return null;
         })}
       </group>
-
-      {/* Toolbar */}
-      <Html fullscreen>
-        <div className="toolbar">
-          <div 
-            className="toolbar-item"
-            onPointerDown={() => {
-              setIsDragging(true);
-              setDraggedItem('table');
-            }}
-          >
-            <div className="preview">
-              <img src="/models/table/table.png" alt="Table" />
-            </div>
-            <span>Table</span>
-          </div>
-        </div>
-      </Html>
     </>
   );
 };

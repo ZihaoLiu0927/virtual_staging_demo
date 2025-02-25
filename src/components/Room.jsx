@@ -7,13 +7,15 @@ Source: https://sketchfab.com/3d-models/room-7bb735cc3db44e8e9ff58de6b1559a63
 Title: Room
 */
 
-import React from 'react'
+import React, { forwardRef } from 'react'
 import { useGLTF } from '@react-three/drei'
+import { useEffect } from 'react'
 
-export function Room(props) {
+export const Room = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF('/models/sample1/scene.gltf')
+
   return (
-    <group {...props} dispose={null}>
+    <group ref={ref} {...props} dispose={null}>
       <group position={[-231.654, 37.583, 118.229]} rotation={[-Math.PI / 2, 0, 0]} scale={100}>
         <mesh geometry={nodes.Drawer_1_Drawer_0.geometry} material={materials.Drawer} />
         <mesh geometry={nodes.Drawer_1_Drawer_legs_0.geometry} material={materials.Drawer_legs} />
@@ -47,7 +49,7 @@ export function Room(props) {
       <mesh geometry={nodes.Blanket_Blanket_0.geometry} material={materials.Blanket} position={[0.726, 67.622, -65.148]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
       <mesh geometry={nodes.Pillow_1_Pillow_0.geometry} material={materials.Pillow} position={[88.731, 82.75, 111.58]} rotation={[-Math.PI / 2, 0.034, 0]} scale={100} />
       <mesh geometry={nodes.Pillow_2_Pillow_0.geometry} material={materials.Pillow} position={[-79.089, 82.75, 111.58]} rotation={[-Math.PI / 2, -0.057, 0]} scale={100} />
-      <mesh geometry={nodes.Floor_Floor_0.geometry} material={materials.Floor} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
+      <mesh geometry={nodes.Floor_Floor_0.geometry} material={materials.Floor} rotation={[-Math.PI / 2, 0, 0]} scale={100} userData={{ ignoreCollision: true }}/>
       <mesh geometry={nodes._Curtain_1_Curtain_0.geometry} material={materials.Curtain} position={[590.872, 264.771, -299.977]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
       <mesh geometry={nodes.Curtain_bar_1__0.geometry} material={materials.Curtain_bar_1__0} position={[602.258, 368.015, -298.759]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
       <mesh geometry={nodes.Curtain_holders_1_Curtain_holders_0.geometry} material={materials.Curtain_holders} position={[590.056, 366.315, -387.131]} rotation={[0, 0, Math.PI / 2]} scale={5.086} />
@@ -61,6 +63,6 @@ export function Room(props) {
       <mesh geometry={nodes.Laptop_keyboard_Laptop_keyboard_0.geometry} material={materials.Laptop_keyboard} position={[443.094, 109.443, -542.154]} rotation={[-Math.PI / 2, 0, -0.522]} scale={100} />
     </group>
   )
-}
+});
 
 useGLTF.preload('/models/sample1/scene.gltf')

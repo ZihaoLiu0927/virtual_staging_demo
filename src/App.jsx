@@ -2,10 +2,12 @@ import { Experience } from "./components/Experience";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls } from "@react-three/drei";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useControls } from "leva";
 import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
+import { Toolbar } from "./components/Toolbar";
+import { Physics } from "@react-three/rapier";
 
 const CameraController = () => {
   const { camera } = useThree();
@@ -37,6 +39,9 @@ export const Controls = {
 };
 
 export const App = () => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [draggedItem, setDraggedItem] = useState(null);
+
   const map = useMemo(
     () => [
       { name: Controls.forward, keys: ["ArrowUp", "KeyW"] },
@@ -49,6 +54,10 @@ export const App = () => {
 
   return (
     <>
+      <Toolbar 
+        setIsDragging={setIsDragging}
+        setDraggedItem={setDraggedItem}
+      />
       <KeyboardControls map={map}>
         <Canvas>
           <CameraController />
@@ -60,7 +69,14 @@ export const App = () => {
             minPolarAngle={Math.PI / 4}
             rotateSpeed={0.5}
           />
-          <Experience />
+          <Physics debug>
+            <Experience 
+              isDragging={isDragging}
+              setIsDragging={setIsDragging}
+              draggedItem={draggedItem}
+              setDraggedItem={setDraggedItem}
+            />
+          </Physics>
         </Canvas>
       </KeyboardControls>
     </>
