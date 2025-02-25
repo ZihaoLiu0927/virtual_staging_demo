@@ -176,43 +176,29 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
           
           if (item.type === 'table') {
             return (
-              <group key={item.id}>
-                <RigidBody colliders="cuboid">
-                  <Table 
-                    position={item.position}
-                    scale={0.4}
-                    onClick={(e) => handleItemSelect(e, item.id)}
-                  />
-                </RigidBody>
-                {/* 选中效果 */}
-                {isSelected && (
-                  <mesh position={item.position}>
-                    <boxGeometry args={[1.2, 1.2, 1.2]} />
-                    <meshBasicMaterial color="yellow" wireframe transparent opacity={0.5} />
-                  </mesh>
-                )}
-              </group>
+              <RigidBody key={item.id} colliders="cuboid">
+                <Table 
+                  position={item.position}
+                  scale={0.4}
+                  onClick={(e) => handleItemSelect(e, item.id)}
+                  isSelected={isSelected}
+                >
+                </Table>
+              </RigidBody>
             );
           }
           
           if (item.type === 'chair') {
             return (
-              <group key={item.id}>
-                <RigidBody colliders="cuboid">
-                  <Chair 
-                    position={item.position}
-                    scale={1}
-                    onClick={(e) => handleItemSelect(e, item.id)}
-                  />
-                </RigidBody>
-                {/* 选中效果 */}
-                {isSelected && (
-                  <mesh position={item.position}>
-                    <boxGeometry args={[0.5, 0.5, 0.5]} />
-                    <meshBasicMaterial color="yellow" wireframe transparent opacity={0.5} />
-                  </mesh>
-                )}
-              </group>
+              <RigidBody key={item.id} colliders="cuboid">
+                <Chair 
+                  position={item.position}
+                  scale={1}
+                  onClick={(e) => handleItemSelect(e, item.id)}
+                  isSelected={isSelected}
+                >
+                </Chair>
+              </RigidBody>
             );
           }
           return null;

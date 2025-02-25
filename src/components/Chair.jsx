@@ -9,14 +9,19 @@ Title: Office chair
 
 import React, { forwardRef } from 'react'
 import { useGLTF } from '@react-three/drei'
+import * as THREE from 'three';
 
-export const Chair = forwardRef((props, ref) => {
+export const Chair = forwardRef(({isSelected, ...props}, ref) => {
   const { nodes, materials } = useGLTF('/models/chair/scene.gltf')
+  const selectedMateriral = new THREE.MeshStandardMaterial({
+    wireframe: true,
+    color: "yellow",
+  });
 
   return (
     <group ref={ref} {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]} scale={0.531}>
-        <mesh geometry={nodes.defaultMaterial.geometry} material={materials.Chair} rotation={[Math.PI / 2, 0, 0]} />
+        <mesh geometry={nodes.defaultMaterial.geometry} material={isSelected ? selectedMateriral : materials.Chair} rotation={[Math.PI / 2, 0, 0]} />
       </group>
     </group>
   )

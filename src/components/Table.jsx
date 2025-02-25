@@ -9,18 +9,23 @@ Title: Computer table
 
 import React, { forwardRef } from 'react'
 import { useGLTF } from '@react-three/drei'
+import * as THREE from 'three';
 
-export const Table = forwardRef((props, ref) => {
-  const { nodes, materials } = useGLTF('/models/table/scene.gltf')
+export const Table = forwardRef(({isSelected, ...props}, ref) => {
+  const { nodes, materials } = useGLTF('/models/table/scene.gltf');
+  const selectedMateriral = new THREE.MeshStandardMaterial({
+    wireframe: true,
+    color: "yellow",
+  });
 
   return (
     <mesh ref={ref} {...props} dispose={null}>
-      <mesh geometry={nodes.Object_4.geometry} material={materials.Material} position={[0, 2.173, 0]} scale={[1.67, 0.053, 1]} />
-      <mesh geometry={nodes.Object_6.geometry} material={materials['Material.002']} position={[0, 3.014, 0]} scale={[0.656, 0.479, 0.044]} />
-      <mesh geometry={nodes.Object_8.geometry} material={materials['Material.004']} position={[0, 2.462, -0.099]} scale={[0.097, 0.273, 0.07]} />
-      <mesh geometry={nodes.Object_10.geometry} material={materials['Material.003']} position={[0, 2.245, 0.475]} scale={[0.704, 0.026, 0.311]} />
-      <mesh geometry={nodes.Object_12.geometry} material={materials['Material.001']} position={[1.245, 2.77, 0.268]} scale={[0.249, 0.561, 0.561]} />
-      <mesh geometry={nodes.Object_14.geometry} material={materials['Material.005']} position={[-0.006, 3.024, 0.034]} scale={[0.637, 0.461, 0.024]} />
+      <mesh geometry={nodes.Object_4.geometry} material={isSelected ? selectedMateriral : materials.Material} position={[0, 2.173, 0]} scale={[1.67, 0.053, 1]} />
+      <mesh geometry={nodes.Object_6.geometry} material={isSelected ? selectedMateriral : materials['Material.002']} position={[0, 3.014, 0]} scale={[0.656, 0.479, 0.044]} />
+      <mesh geometry={nodes.Object_8.geometry} material={isSelected ? selectedMateriral : materials['Material.004']} position={[0, 2.462, -0.099]} scale={[0.097, 0.273, 0.07]} />
+      <mesh geometry={nodes.Object_10.geometry} material={isSelected ? selectedMateriral : materials['Material.003']} position={[0, 2.245, 0.475]} scale={[0.704, 0.026, 0.311]} />
+      <mesh geometry={nodes.Object_12.geometry} material={isSelected ? selectedMateriral : materials['Material.001']} position={[1.245, 2.77, 0.268]} scale={[0.249, 0.561, 0.561]} />
+      <mesh geometry={nodes.Object_14.geometry} material={isSelected ? selectedMateriral : materials['Material.005']} position={[-0.006, 3.024, 0.034]} scale={[0.637, 0.461, 0.024]} />
     </mesh>
   )
 })
