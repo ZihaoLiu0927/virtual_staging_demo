@@ -170,29 +170,25 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
           
           if (item.type === 'table') {
             return (
-              <RigidBody key={item.id} colliders="cuboid">
-                <Table 
-                  position={item.position}
-                  scale={0.4}
-                  onClick={(e) => handleItemSelect(e, item.id)}
-                  isSelected={isSelected}
-                >
-                </Table>
-              </RigidBody>
+              <Table 
+                position={item.position}
+                scale={0.4}
+                onClick={(e) => handleItemSelect(e, item.id)}
+                isSelected={isSelected}
+              >
+              </Table>
             );
           }
           
           if (item.type === 'chair') {
             return (
-              <RigidBody key={item.id} colliders="cuboid">
-                <Chair 
-                  position={item.position}
-                  scale={1}
-                  onClick={(e) => handleItemSelect(e, item.id)}
-                  isSelected={isSelected}
-                >
-                </Chair>
-              </RigidBody>
+              <Chair 
+                position={item.position}
+                scale={1}
+                onClick={(e) => handleItemSelect(e, item.id)}
+                isSelected={isSelected}
+              >
+              </Chair>
             );
           }
           return null;
