@@ -26,6 +26,9 @@ export const Table = (({isSelected, ...props}) => {
   const rb = useRef();
   const vel = new THREE.Vector3();
   useFrame(() => {
+    if (!isSelected) {
+      return;
+    }
     vel.x = 0;
     vel.y = 0;
     vel.z = 0;
