@@ -63,6 +63,7 @@ export const App = () => {
       />
       <KeyboardControls map={map}>
         <Canvas>
+          <ambientLight intensity={0.5} />
           <CameraController />
           <OrbitControls 
             enablePan={false} 
