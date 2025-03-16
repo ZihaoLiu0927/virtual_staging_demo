@@ -64,6 +64,7 @@ export const App = () => {
       <Toolbar 
         setIsDragging={setIsDragging}
         setDraggedItem={setDraggedItem}
+        isDragging={isDragging}
       />
       <KeyboardControls map={map}>
         <Canvas>

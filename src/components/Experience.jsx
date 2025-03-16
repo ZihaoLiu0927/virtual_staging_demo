@@ -24,10 +24,8 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
   
   const { camera, raycaster, pointer } = useThree();
 
-  // 修改虚拟地面的位置，将其设置得比房间地面稍高
   const VIRTUAL_GROUND_HEIGHT = 0.1; // 1cm higher than room floor
 
-  // 修改家具的放置高度，考虑到虚拟地面的高度
   const FURNITURE_HEIGHTS = {
     table: VIRTUAL_GROUND_HEIGHT+0.1,
     chair: VIRTUAL_GROUND_HEIGHT+0.5
@@ -74,7 +72,6 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isDragging, selectedItem]);
 
-  // 取消放置的方法
   const cancelPlacement = () => {
     setIsDragging(false);
     setDraggedItem(null);
@@ -82,7 +79,7 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
   };
 
   const FURNITURE_SIZES = {
-    table: { x: 1, y: 0.7, z: 0.5 },
+    table: { x: 0.4, y: 0.3, z: 0.1 },
     chair: { x: 0.3, y: 0.5, z: 0.3 },
   };
 
