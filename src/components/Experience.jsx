@@ -79,7 +79,7 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
   };
 
   const FURNITURE_SIZES = {
-    table: { x: 0.4, y: 0.3, z: 0.1 },
+    table: { x: 0.3, y: 0.2, z: 0.05 },
     chair: { x: 0.3, y: 0.5, z: 0.3 },
   };
 
@@ -88,16 +88,16 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
   };
 
   const handlePointerMove = (event) => {
-    if (isDragging) {
-      raycaster.setFromCamera(pointer, camera);
-      const intersects = raycaster.intersectObject(roomRef.current);
-      
-      if (intersects.length > 0) {
-        const point = intersects[0].point;
-        const height = FURNITURE_HEIGHTS[draggedItem] || 0;
-        const position = [point.x, height, point.z];
-        setPreviewPosition(position);
-      }
+    if (!isDragging || !draggedItem) return;
+    
+    raycaster.setFromCamera(pointer, camera);
+    const intersects = raycaster.intersectObject(roomRef.current);
+    
+    if (intersects.length > 0) {
+      const point = intersects[0].point;
+      const height = FURNITURE_HEIGHTS[draggedItem] || 0;
+      const position = [point.x, height, point.z];
+      setPreviewPosition(position);
     }
   };
 
@@ -105,16 +105,20 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
     if (event.button !== 0) return;
 
     if (isDragging && previewPosition) {
+      event.stopPropagation();
+      
       const canPlace = checkPlacement(previewPosition, draggedItem, furniture);
       if (canPlace) {
+        setIsDragging(false);
+        setDraggedItem(null);
+        
         const uniqueId = `${draggedItem}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         setFurniture(prev => [...prev, {
           type: draggedItem,
           position: previewPosition,
           id: uniqueId
         }]);
-        setIsDragging(false);
-        setDraggedItem(null);
+        
         setPreviewPosition(null);
       }
     }
