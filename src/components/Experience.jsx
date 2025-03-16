@@ -6,6 +6,7 @@ import { useKeyboardControls } from "@react-three/drei";
 import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 import { RigidBody, useRapier } from "@react-three/rapier";
+import { Html } from "@react-three/drei";
 
 
 export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedItem }) => {
@@ -65,6 +66,10 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
         } else if (selectedItem) {
           setSelectedItem(null);
         }
+      }
+      // 添加删除快捷键 (Delete 或 Backspace)
+      if ((event.key === 'Delete' || event.key === 'Backspace') && selectedItem) {
+        handleDeleteFurniture();
       }
     };
 
@@ -130,6 +135,14 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
     setSelectedItem(itemId);
   };
 
+  // 添加删除家具的处理函数
+  const handleDeleteFurniture = () => {
+    if (selectedItem) {
+      setFurniture(prev => prev.filter(item => item.id !== selectedItem));
+      setSelectedItem(null);
+    }
+  };
+
   return (
     <>
       <group 
@@ -171,25 +184,69 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
           
           if (item.type === 'table') {
             return (
-              <Table 
-                position={item.position}
-                scale={0.4}
-                onClick={(e) => handleItemSelect(e, item.id)}
-                isSelected={isSelected}
-              >
-              </Table>
+              <group key={item.id}>
+                <Table 
+                  position={item.position}
+                  scale={0.4}
+                  onClick={(e) => handleItemSelect(e, item.id)}
+                  isSelected={isSelected}
+                />
+                {isSelected && (
+                  <Html
+                    position={[item.position[0], item.position[1] + 0.5, item.position[2]]}
+                    center
+                  >
+                    <button
+                      onClick={handleDeleteFurniture}
+                      style={{
+                        padding: '4px 8px',
+                        backgroundColor: '#ff4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                      }}
+                    >
+                      delete
+                    </button>
+                  </Html>
+                )}
+              </group>
             );
           }
           
           if (item.type === 'chair') {
             return (
-              <Chair 
-                position={item.position}
-                scale={1}
-                onClick={(e) => handleItemSelect(e, item.id)}
-                isSelected={isSelected}
-              >
-              </Chair>
+              <group key={item.id}>
+                <Chair 
+                  position={item.position}
+                  scale={1}
+                  onClick={(e) => handleItemSelect(e, item.id)}
+                  isSelected={isSelected}
+                />
+                {isSelected && (
+                  <Html
+                    position={[item.position[0], item.position[1] + 0.5, item.position[2]]}
+                    center
+                  >
+                    <button
+                      onClick={handleDeleteFurniture}
+                      style={{
+                        padding: '4px 8px',
+                        backgroundColor: '#ff4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                      }}
+                    >
+                      delete
+                    </button>
+                  </Html>
+                )}
+              </group>
             );
           }
           return null;
