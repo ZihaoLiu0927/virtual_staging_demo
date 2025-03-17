@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint src --ext js,jsx",
     "type-check": "tsc --noEmit",
+    "predeploy": "yarn run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
