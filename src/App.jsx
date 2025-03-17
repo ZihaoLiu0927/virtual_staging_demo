@@ -41,6 +41,15 @@ export const Controls = {
 export const App = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [draggedItem, setDraggedItem] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [furniture, setFurniture] = useState([]);
+
+  const handleDeleteFurniture = () => {
+    if (selectedItem) {
+      setFurniture(prev => prev.filter(item => item.id !== selectedItem));
+      setSelectedItem(null);
+    }
+  };
 
   const { showPhysics } = useControls({
     showPhysics: {
@@ -78,16 +87,46 @@ export const App = () => {
             minPolarAngle={Math.PI / 4}
             rotateSpeed={0.5}
           />
-          <Physics debug = {showPhysics}>
+          <Physics debug={showPhysics}>
             <Experience 
               isDragging={isDragging}
               setIsDragging={setIsDragging}
               draggedItem={draggedItem}
               setDraggedItem={setDraggedItem}
+              selectedItem={selectedItem}
+              setSelectedItem={setSelectedItem}
+              furniture={furniture}
+              setFurniture={setFurniture}
             />
           </Physics>
         </Canvas>
       </KeyboardControls>
+
+      {selectedItem && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 1000
+          }}
+        >
+          <button
+            onClick={handleDeleteFurniture}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#ff4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            Delete Selected Item
+          </button>
+        </div>
+      )}
     </>
   );
 };

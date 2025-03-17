@@ -9,10 +9,17 @@ import { RigidBody, useRapier } from "@react-three/rapier";
 import { Html } from "@react-three/drei";
 
 
-export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedItem }) => {
-  const [furniture, setFurniture] = useState([]);
+export const Experience = ({ 
+  isDragging, 
+  setIsDragging, 
+  draggedItem, 
+  setDraggedItem,
+  selectedItem,
+  setSelectedItem,
+  furniture,
+  setFurniture
+}) => {
   const [previewPosition, setPreviewPosition] = useState(null);
-  const [selectedItem, setSelectedItem] = useState(null);
   const { rapier, world } = useRapier();  // 获取物理世界实例
   const cameraRef = useRef();
   const [, getKeys] = useKeyboardControls();
@@ -66,10 +73,6 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
         } else if (selectedItem) {
           setSelectedItem(null);
         }
-      }
-      // 添加删除快捷键 (Delete 或 Backspace)
-      if ((event.key === 'Delete' || event.key === 'Backspace') && selectedItem) {
-        handleDeleteFurniture();
       }
     };
 
@@ -131,16 +134,8 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
 
   // 添加选中物品的处理函数
   const handleItemSelect = (event, itemId) => {
-    event.stopPropagation(); // 防止事件冒泡
+    event.stopPropagation();
     setSelectedItem(itemId);
-  };
-
-  // 添加删除家具的处理函数
-  const handleDeleteFurniture = () => {
-    if (selectedItem) {
-      setFurniture(prev => prev.filter(item => item.id !== selectedItem));
-      setSelectedItem(null);
-    }
   };
 
   return (
@@ -184,69 +179,25 @@ export const Experience = ({ isDragging, setIsDragging, draggedItem, setDraggedI
           
           if (item.type === 'table') {
             return (
-              <group key={item.id}>
-                <Table 
-                  position={item.position}
-                  scale={0.4}
-                  onClick={(e) => handleItemSelect(e, item.id)}
-                  isSelected={isSelected}
-                />
-                {isSelected && (
-                  <Html
-                    position={[item.position[0], item.position[1] + 0.5, item.position[2]]}
-                    center
-                  >
-                    <button
-                      onClick={handleDeleteFurniture}
-                      style={{
-                        padding: '4px 8px',
-                        backgroundColor: '#ff4444',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px'
-                      }}
-                    >
-                      delete
-                    </button>
-                  </Html>
-                )}
-              </group>
+              <Table 
+                key={item.id}
+                position={item.position}
+                scale={0.4}
+                onClick={(e) => handleItemSelect(e, item.id)}
+                isSelected={isSelected}
+              />
             );
           }
           
           if (item.type === 'chair') {
             return (
-              <group key={item.id}>
-                <Chair 
-                  position={item.position}
-                  scale={1}
-                  onClick={(e) => handleItemSelect(e, item.id)}
-                  isSelected={isSelected}
-                />
-                {isSelected && (
-                  <Html
-                    position={[item.position[0], item.position[1] + 0.5, item.position[2]]}
-                    center
-                  >
-                    <button
-                      onClick={handleDeleteFurniture}
-                      style={{
-                        padding: '4px 8px',
-                        backgroundColor: '#ff4444',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px'
-                      }}
-                    >
-                      delete
-                    </button>
-                  </Html>
-                )}
-              </group>
+              <Chair 
+                key={item.id}
+                position={item.position}
+                scale={1}
+                onClick={(e) => handleItemSelect(e, item.id)}
+                isSelected={isSelected}
+              />
             );
           }
           return null;
