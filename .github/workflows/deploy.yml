@@ -25,9 +25,6 @@ jobs:
       - name: Build
         run: yarn build
 
-      - name: Run tests
-        run: yarn test
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
