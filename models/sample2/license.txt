@@ -1,0 +1,11 @@
+Model Information:
+* title:	Fhain
+* source:	https://sketchfab.com/3d-models/fhain-54f175a7935e4bcf91b55b02cf4b9f1c
+* author:	Invisible Room (https://sketchfab.com/invisibleroom)
+
+Model License:
+* license type:	CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)
+* requirements:	Author must be credited. No commercial use. Modified versions must have the same license.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Fhain" (https://sketchfab.com/3d-models/fhain-54f175a7935e4bcf91b55b02cf4b9f1c) by Invisible Room (https://sketchfab.com/invisibleroom) licensed under CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)
