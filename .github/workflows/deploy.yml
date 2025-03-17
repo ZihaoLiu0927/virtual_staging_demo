@@ -1,81 +1,35 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy
 
 on:
   push:
-    branches: [ main ]
-  # 允许手动触发部署
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# 只允许一个部署任务同时运行
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
+    branches: [ "main" ]  # 当推送到 main 分支时触发
+  pull_request:
+    branches: [ "main" ]  # 当创建针对 main 分支的 PR 时触发
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 环境
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'yarn'
-
-      # 获取yarn的缓存路径
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
-      # 设置yarn缓存
-      - name: Cache yarn dependencies
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      # 安装依赖
-      - name: Install dependencies
-        run: |
-          yarn install --frozen-lockfile
-        env:
-          CI: true
-
-      # 构建项目
-      - name: Build project
-        run: |
-          yarn build
-        env:
-          CI: true
-
-      # 配置GitHub Pages
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-
-      # 上传构建产物
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: dist
-
-  # 部署任务
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+    - uses: actions/checkout@v3  # 检出代码
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'  # 使用 Node.js 18
+        
+    - name: Install yarn
+      run: npm install -g yarn
+        
+    - name: Install Dependencies
+      run: yarn install  # 使用 yarn 安装依赖
+      
+    - name: Build
+      run: yarn build  # 使用 yarn 构建项目
+      
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'  # 只在 main 分支部署
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist  # 假设构建输出在 dist 目录 
