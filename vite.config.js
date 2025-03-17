@@ -5,7 +5,4 @@ export default defineConfig({
   plugins: [react()],
   base: '/virtual_staging_demo/',
   publicDir: 'public',
-  build: {
-    assetsDir: 'assets',
-  }
 })
