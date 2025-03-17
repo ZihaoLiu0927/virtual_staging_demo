@@ -2,16 +2,18 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  # 允许手动触发部署
+  workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# 只允许一个部署任务同时运行
 concurrency:
-  group: 'pages'
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
@@ -20,29 +22,56 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 获取完整的git历史
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'yarn'
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+      # 获取yarn的缓存路径
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
-      - name: Build project
-        run: yarn build
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3.1.2
+      # 设置yarn缓存
+      - name: Cache yarn dependencies
+        uses: actions/cache@v3
         with:
-          name: github-pages
-          path: ./dist
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
+      # 安装依赖
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+        env:
+          CI: true
+
+      # 构建项目
+      - name: Build project
+        run: |
+          yarn build
+        env:
+          CI: true
+
+      # 配置GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      # 上传构建产物
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: dist
+          retention-days: 7
+
+  # 部署任务
   deploy:
     environment:
       name: github-pages
@@ -52,6 +81,6 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v3
         with:
-          artifact_name: github-pages
+          timeout: 600000  # 10分钟超时
