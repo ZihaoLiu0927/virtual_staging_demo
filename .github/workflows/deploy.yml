@@ -1,35 +1,35 @@
-name: Build and Deploy
+name: Deploy
 
 on:
   push:
-    branches: [ "main" ]  # 当推送到 main 分支时触发
-  pull_request:
-    branches: [ "main" ]  # 当创建针对 main 分支的 PR 时触发
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 环境
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3  # 检出代码
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'  # 使用 Node.js 18
-        
-    - name: Install yarn
-      run: npm install -g yarn
-        
-    - name: Install Dependencies
-      run: yarn install  # 使用 yarn 安装依赖
-      
-    - name: Build
-      run: yarn build  # 使用 yarn 构建项目
-      
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main'  # 只在 main 分支部署
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist  # 假设构建输出在 dist 目录 
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build
+
+      - name: Run tests
+        run: yarn test
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
