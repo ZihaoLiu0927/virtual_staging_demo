@@ -182,7 +182,7 @@ export const Experience = ({
               <Table 
                 key={item.id}
                 position={item.position}
-                scale={0.4}
+                scale={0.35}
                 onClick={(e) => handleItemSelect(e, item.id)}
                 isSelected={isSelected}
               />
