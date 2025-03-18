@@ -6,7 +6,6 @@ import { useKeyboardControls } from "@react-three/drei";
 import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 import { RigidBody, useRapier } from "@react-three/rapier";
-import { Html } from "@react-three/drei";
 
 
 export const Experience = ({ 

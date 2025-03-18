@@ -8,6 +8,9 @@ import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 import { Toolbar } from "./components/Toolbar";
 import { Physics } from "@react-three/rapier";
+import { Suspense } from "react";
+import { Loading } from "./components/Loading";
+import { useProgress } from "@react-three/drei";
 
 const CameraController = () => {
   const { camera } = useThree();
@@ -36,6 +39,7 @@ export const Controls = {
   back: "back",
   left: "left",
   right: "right",
+  jump: "jump",
 };
 
 export const App = () => {
@@ -43,6 +47,7 @@ export const App = () => {
   const [draggedItem, setDraggedItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [furniture, setFurniture] = useState([]);
+  const { progress } = useProgress();
 
   const handleDeleteFurniture = () => {
     if (selectedItem) {
@@ -64,12 +69,14 @@ export const App = () => {
       { name: Controls.back, keys: ["ArrowDown", "KeyS"] },
       { name: Controls.left, keys: ["ArrowLeft", "KeyA"] },
       { name: Controls.right, keys: ["ArrowRight", "KeyD"] },
+      { name: Controls.jump, keys: ["Space"] },
     ],
     []
   );
 
   return (
     <>
+      {progress < 100 && <Loading progress={progress} />}
       <Toolbar 
         setIsDragging={setIsDragging}
         setDraggedItem={setDraggedItem}
@@ -88,16 +95,18 @@ export const App = () => {
             rotateSpeed={0.5}
           />
           <Physics debug={showPhysics}>
-            <Experience 
-              isDragging={isDragging}
-              setIsDragging={setIsDragging}
-              draggedItem={draggedItem}
-              setDraggedItem={setDraggedItem}
-              selectedItem={selectedItem}
-              setSelectedItem={setSelectedItem}
-              furniture={furniture}
-              setFurniture={setFurniture}
-            />
+            <Suspense fallback={null}>
+              <Experience 
+                isDragging={isDragging}
+                setIsDragging={setIsDragging}
+                draggedItem={draggedItem}
+                setDraggedItem={setDraggedItem}
+                selectedItem={selectedItem}
+                setSelectedItem={setSelectedItem}
+                furniture={furniture}
+                setFurniture={setFurniture}
+              />
+            </Suspense>
           </Physics>
         </Canvas>
       </KeyboardControls>
