@@ -17,7 +17,7 @@ import { Controls } from "../App";
 const MOVEMENT_SPEED = 1;
 
 export const Table = (({isSelected, ...props}) => {
-  const { nodes, materials } = useGLTF('/models/table/scene.gltf');
+  const { nodes, materials } = useGLTF('./models/table/scene.gltf');
   const [, get] = useKeyboardControls();
   const selectedMateriral = new THREE.MeshStandardMaterial({
     wireframe: true,
@@ -63,4 +63,4 @@ export const Table = (({isSelected, ...props}) => {
   )
 })
 
-useGLTF.preload('/models/table/scene.gltf')
+useGLTF.preload('./models/table/scene.gltf')

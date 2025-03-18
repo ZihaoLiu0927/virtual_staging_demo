@@ -12,7 +12,7 @@ import { useGLTF } from '@react-three/drei'
 import { useEffect } from 'react'
 
 export const Room = forwardRef((props, ref) => {
-  const { nodes, materials } = useGLTF('/models/sample1/scene.gltf')
+  const { nodes, materials } = useGLTF('./models/sample1/scene.gltf')
 
   return (
     <group ref={ref} {...props} dispose={null}>
@@ -65,4 +65,4 @@ export const Room = forwardRef((props, ref) => {
   )
 });
 
-useGLTF.preload('/models/sample1/scene.gltf')
+useGLTF.preload('./models/sample1/scene.gltf')

@@ -16,7 +16,7 @@ export const Toolbar = ({ setIsDragging, setDraggedItem, isDragging }) => {
         onClick={() => handleToolbarItemClick('table')}
       >
         <div className="preview">
-          <img src="/models/table/table.png" alt="Table" />
+          <img src="./models/table/table.png" alt="Table" />
         </div>
       </div>
 
@@ -25,7 +25,7 @@ export const Toolbar = ({ setIsDragging, setDraggedItem, isDragging }) => {
         onClick={() => handleToolbarItemClick('chair')}
       >
         <div className="preview">
-          <img src="/models/chair/chair.png" alt="Chair" />
+          <img src="./models/chair/chair.png" alt="Chair" />
         </div>
       </div>
     </div>
