@@ -160,15 +160,19 @@ export const Experience = ({
         {/* Preview with visual feedback */}
         {isDragging && previewPosition && (
           draggedItem === 'table' ? (
-            <Table 
-              position={previewPosition}
-              scale={0.4}
-            />
+            <group position={previewPosition}>
+              <Table 
+                scale={0.4}
+                isPreview={true}
+              />
+            </group>
           ) : (
-            <Chair 
-              position={previewPosition}
-              scale={1}
-            />
+            <group position={previewPosition}>
+              <Chair 
+                scale={1}
+                isPreview={true}
+              />
+            </group>
           )
         )}
 

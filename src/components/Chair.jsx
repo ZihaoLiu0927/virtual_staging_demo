@@ -16,7 +16,7 @@ import { Controls } from "../App";
 
 const MOVEMENT_SPEED = 1;
 
-export const Chair = (({isSelected, ...props}) => {
+export const Chair = (({isSelected, isPreview = false, ...props}) => {
   const { nodes, materials } = useGLTF('./models/chair/scene.gltf')
   const [, get] = useKeyboardControls();
   const selectedMateriral = new THREE.MeshStandardMaterial({
@@ -48,6 +48,16 @@ export const Chair = (({isSelected, ...props}) => {
     }
     rb.current.setLinvel(vel, true);
   });
+
+  if (isPreview) {
+    return (
+      <group {...props} dispose={null}>
+        <group rotation={[-Math.PI / 2, 0, 0]} scale={0.531}>
+          <mesh geometry={nodes.defaultMaterial.geometry} material={materials.Chair} rotation={[Math.PI / 2, 0, 0]} />
+        </group>
+      </group>
+    );
+  }
 
   return (
     <RigidBody ref={rb} colliders="cuboid">
