@@ -9,8 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint src --ext js,jsx",
     "type-check": "tsc --noEmit",
-    "predeploy": "yarn run build",
-    "deploy": "git checkout gh-pages && git merge main && git rm -r --cached . && git add dist && git commit -m \"deploy\" && git push origin gh-pages && git checkout main"
+    "predeploy": "yarn build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@dimforge/rapier3d": "^0.14.0",
