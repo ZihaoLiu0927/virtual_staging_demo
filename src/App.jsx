@@ -2,7 +2,7 @@ import { Experience } from "./components/Experience";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls } from "@react-three/drei";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useControls } from "leva";
 import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
