@@ -77,11 +77,13 @@ export const App = () => {
   return (
     <>
       {progress < 100 && <Loading progress={progress} />}
-      <Toolbar 
-        setIsDragging={setIsDragging}
-        setDraggedItem={setDraggedItem}
-        isDragging={isDragging}
-      />
+      {progress === 100 && (
+        <Toolbar 
+          setIsDragging={setIsDragging}
+          setDraggedItem={setDraggedItem}
+          isDragging={isDragging}
+        />
+      )}
       <KeyboardControls map={map}>
         <Canvas>
           <ambientLight intensity={0.5} />
